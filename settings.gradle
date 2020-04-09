@@ -1,0 +1,6 @@
+rootProject.name = 'Gradle_Groovy'
+
+println '初始化阶段开始执行'
+include 'App'
+include 'War'
+

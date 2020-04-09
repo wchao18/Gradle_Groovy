@@ -1,0 +1,69 @@
+plugins {
+    id 'groovy'
+}
+
+group 'com.it'
+version '1.0-SNAPSHOT'
+
+repositories {
+    maven { url "https://maven.aliyun.com/nexus/content/groups/public/" }
+    maven { url "https://maven.aliyun.com/nexus/content/repositories/jcenter" }
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.codehaus.groovy:groovy-all:2.3.11'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+/**
+ * 配置阶段开始前
+ */
+this.beforeEvaluate {
+    println '配置阶段开始前'
+}
+
+/**
+ * 配置阶段完成后
+ */
+this.afterEvaluate {
+    println '配置阶段执行完毕'
+}
+
+/**
+ * gradle完成后的监听
+ */
+this.gradle.buildFinished {
+    println 'gradle执行阶段执行完毕'
+}
+
+this.gradle.beforeProject {}
+this.gradle.afterProject {}
+
+
+/*project api*/
+this.getAllProjects()
+
+def getAllProjects() {
+    println "************************"
+    println 'Root Project'
+    this.getAllprojects().eachWithIndex { Project project, int index ->
+        if (index == 0) {
+            println "Root Project >>>>> ${project.name}"
+        } else {
+            println "Subject Project >>>>> ${project.name}"
+        }
+    }
+}
+
+//获取当前的project的所有的子project
+def getSubProjects() {
+    this.getSubprojects().eachWithIndex { Project project, int index ->
+        println "Subject Project index:${index} >>>>> ${project.name}"
+    }
+}
+getSubProjects()
+
+//获取当前project的父project,没有则报错
+//println(this.getParent().name)
+println("Root Project:" + this.getRootProject().name)
