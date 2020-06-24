@@ -1,6 +1,35 @@
+
+/*依赖相关api*/
+buildscript { ScriptHandler scriptHandler ->
+    scriptHandler.repositories {RepositoryHandler repositoryHandler ->
+        repositoryHandler.jcenter()  //jcenter库
+        repositoryHandler.mavenCentral() //maven中心库
+        repositoryHandler.mavenLocal() //本地maven库
+        maven { url 'http://172.16.13.180:18080/nexus/content/groups/public/' }//配置maven的私有仓库
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+    }
+
+    //配置'插件'依赖地址(gradle使用的库)
+    scriptHandler.dependencies {
+
+    }
+}
+
+//应用程序使用的第三方库
+dependencies {
+    compile 'junit:junit:4.13'
+    compile("org.gradle.test.excludes:api:1.0") {
+        exclude module: 'shared'
+        transitive false //禁止传递依赖
+    }
+}
+
+
+/*
 plugins {
     id 'java'
 }
+*/
 
 group 'com.it'
 version '1.0-SNAPSHOT'
@@ -14,3 +43,37 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
+
+//获取当前project的父project,没有则报错
+println("父项目名称：" + this.getParent().name)
+println("获取父项目中jdk的版本：" + this.java_version)
+println("获取父项目中的groovy版本信息:" + this.rootProject.groovy_version)
+println("【继承关系】获取父项目中的groovy版本信息:" + this.groovy_version)
+println("【扩展公共配置】获取公共配置版本信息:" + this.test_version)
+println("【gradle properties】获取配置信息:" + this.test_property1)
+
+
+/*文件拷贝*/
+copy{
+    from file('/build/a.txt')
+    into getRootProject().getBuildDir().path
+    exclude{
+
+    }
+    rename{
+
+    }
+}
+
+//文件树的遍历
+fileTree("build/") {//基于基准目录创建文件树
+FileTree fileTree ->
+    fileTree.visit {//访问文件树的元素
+    FileTreeElement element ->
+        println "APP:" + element.file.name
+    }
+}
+
+sourceSets{
+}
+

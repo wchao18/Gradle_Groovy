@@ -11,8 +11,14 @@ repositories {
     mavenCentral()
 }
 
+//def groovy_version = 'org.codehaus.groovy:groovy-all:2.3.11'
+//扩展属性
+ext {
+    groovy_version = 'org.codehaus.groovy:groovy-all:2.3.11'
+}
+
 dependencies {
-    compile 'org.codehaus.groovy:groovy-all:2.3.11'
+    compile this.groovy_version
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
@@ -41,7 +47,7 @@ this.gradle.beforeProject {}
 this.gradle.afterProject {}
 
 
-/*project api*/
+/*project api start*/
 this.getAllProjects()
 
 def getAllProjects() {
@@ -62,8 +68,86 @@ def getSubProjects() {
         println "Subject Project index:${index} >>>>> ${project.name}"
     }
 }
+
 getSubProjects()
 
 //获取当前project的父project,没有则报错
 //println(this.getParent().name)
 println("Root Project:" + this.getRootProject().name)
+
+println("*************************************")
+
+//配置独立的应用
+/*
+project("App"){
+    //默认参数project
+    Project project -> println project.name
+    //应用插件是java
+    apply plugin : 'java'
+    group 'com.it'
+    version '1.0.0'
+    dependencies {
+    }
+}
+*/
+
+//配置当前工程和其下所有的子工程
+allprojects {
+    apply plugin: 'java'
+    group 'com.test'
+    version '1.0.0 snapshots'
+}
+println(project("App").group)
+
+//配置子工程
+subprojects {
+    //配置推送到Maven仓库
+    //apply from : '../publishToMaven.gradle'
+
+    //ext中每个project都定义了扩展属性
+    ext {
+        //app中获取
+        java_version = 1.8
+    }
+}
+
+//引用公共扩展属性
+apply from: this.file('common.gradle')
+
+/*project api end*/
+
+println("file api ********************************")
+/*file api start*/
+println 'root file path' + this.getRootDir().absolutePath
+println 'build file path' + this.getBuildDir().absolutePath
+println 'project file path' + this.getProjectDir().absolutePath
+
+println(getContent('D:\\IDEAProject\\Gradle_Groovy\\common.gradle'))
+def getContent(String path) {
+    try {
+        def file = new File(path)
+        return file.text
+    } catch (Exception e) {
+      println('file not find')
+    }
+}
+/*file api end*/
+
+//task原本在配置阶段执行的,可以修改在执行阶段执行
+//1.通过task方法创建
+task helloTask(group:  'testGroup',description: '测试task'){
+    println 'hello task'
+    doFirst {
+        println "dofirst************** the task group is : + ${group}"
+    }
+}
+//在闭包外调用
+//getDateTask.doFirst { println "the description is:$description" }
+
+//2.通过TaskContainer创建
+this.tasks.create(name: 'getDateTask2') {
+    setGroup('testGroup')
+    setDescription('测试task')
+    println "getDateTask2 date: ${new Date().dateString}"
+}
+

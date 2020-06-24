@@ -1,0 +1,100 @@
+plugins {
+    id 'java'
+}
+
+group 'com.it'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenLocal()
+    maven
+            {
+                url "http://maven.aliyun.com/nexus/content/groups/public/"
+            }
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+
+//1.获取所有的项目
+def getAllProjects() {
+    println '项目结构输出'
+    this.getAllprojects().eachWithIndex { Project project, int index ->
+        if (index == 0) {
+            println "Root Project >>>>> ${project.name}"
+        } else {
+            println "Subject Project >>>>> ${project.name}"
+        }
+    }
+}
+getAllProjects();
+
+//2.获取父项目（见myproj-core）
+
+//3.闭包里面的规则
+//Project project(String name,Closure closure);
+//替换为下面
+//Project project(String name){Closure closure}
+project("myproj-core"){ Project project ->
+    group 'com.it'
+}
+//4.所有的项目配置
+allprojects {
+
+}
+//5.子项目配置
+subprojects {
+    /*dependencies {}
+
+    repositories {
+
+    }*/
+    //类似于java中的import
+    //apply from this.file("common.gradle")
+}
+
+//6.新建common.gradle外部配置文件,见上
+//apply from this.file("common.gradle")
+
+//7.获取根路径
+def getRootDirTest(){
+    println "根路径" +  this.getRootDir().absolutePath
+}
+getRootDirTest()
+
+//8.文件拷贝
+/*
+copy {
+    from this.file("common.gradle")
+    into this.getRootProject().getBuildDir().path + "/tmp"
+}
+*/
+//9.文件遍历
+fileTree("build/libs/"){
+    FileTree fileTree ->
+        fileTree.visit { FileTreeElement fileTreeElement ->
+            println "the file name is :${fileTreeElement.file.name}"
+
+        }
+}
+//10.Gradlew 对gradle可执行命令的包装,屏蔽不同版本的兼容
+//11.生命周期:初始化->配置阶段->执行阶段
+//11.1 配置阶段完成后的监听
+this.beforeEvaluate {
+    println '配置完成前'
+}
+
+//11.2
+this.afterEvaluate {
+    println '配置完成后'
+}
+
+//11.3 执行阶段完成后的监听
+this.gradle.buildFinished {
+    println '执行阶段完毕'
+}
+

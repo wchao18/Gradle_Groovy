@@ -2,5 +2,12 @@ rootProject.name = 'Gradle_Groovy'
 
 println '初始化阶段开始执行'
 include 'App'
-include 'War'
+
+
+//指定满足条件的包含
+if(hasProperty('test_property1').equals('War')){
+    println '***************include War'
+    include 'War'
+}
+include 'plugin'
 
